@@ -47,6 +47,7 @@ public class UserServiceImpl implements UserService {
     return repository.existsByEmail(email);
   }
 
+  @Transactional
   @Override
   public List<User> findAll() {
     return repository.findAll();
