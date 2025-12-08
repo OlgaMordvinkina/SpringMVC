@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     return repository.existsByEmail(email);
   }
 
-  @Transactional
+  @Transactional(readOnly = true)
   @Override
   public List<User> findAll() {
     return repository.findAll();
