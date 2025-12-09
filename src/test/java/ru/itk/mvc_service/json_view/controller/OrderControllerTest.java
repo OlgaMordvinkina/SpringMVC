@@ -1,6 +1,7 @@
 package ru.itk.mvc_service.json_view.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -70,10 +71,7 @@ class OrderControllerTest {
 
   @Test
   void shouldCreateOrder() throws Exception {
-    SaveOrderDto dto = new SaveOrderDto();
-    dto.setStatus(OrderStatus.PROCESSING);
-    dto.setUserId(1L);
-    dto.setAmount(BigDecimal.valueOf(100));
+    SaveOrderDto dto = buildSaveOrderDto(BigDecimal.valueOf(100), OrderStatus.PROCESSING, 1L);
 
     Order order = new Order();
     order.setId(100L);
@@ -99,4 +97,53 @@ class OrderControllerTest {
     mockMvc.perform(delete("/orders/50"))
       .andExpect(status().isNoContent());
   }
+
+  @Test
+  void shouldFailWhenAmountIsNull() throws Exception {
+    SaveOrderDto dto = buildSaveOrderDto(null, OrderStatus.NEW, 1L);
+
+    mockMvc.perform(post("/orders/create")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(dto)))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailWhenAmountIsTooSmall() throws Exception {
+    SaveOrderDto dto = buildSaveOrderDto(BigDecimal.valueOf(0.001), OrderStatus.NEW, 1L);
+
+    mockMvc.perform(post("/orders/create")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(dto)))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailWhenStatusIsNull() throws Exception {
+    SaveOrderDto dto = buildSaveOrderDto(BigDecimal.valueOf(50), null, 1L);
+
+    mockMvc.perform(post("/orders/create")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(dto)))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailWhenUserIdIsNull() throws Exception {
+    SaveOrderDto dto = buildSaveOrderDto(BigDecimal.valueOf(50), OrderStatus.NEW, null);
+
+    mockMvc.perform(post("/orders/create")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(dto)))
+      .andExpect(status().isBadRequest());
+  }
+
+  private SaveOrderDto buildSaveOrderDto(BigDecimal amount, OrderStatus status, Long userId) {
+    SaveOrderDto dto = new SaveOrderDto();
+    dto.setAmount(amount);
+    dto.setStatus(status);
+    dto.setUserId(userId);
+    return dto;
+  }
+
 }

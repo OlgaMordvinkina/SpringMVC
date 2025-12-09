@@ -128,4 +128,31 @@ class UserControllerTest {
     mockMvc.perform(delete("/users/10"))
       .andExpect(status().isNoContent());
   }
+
+  @Test
+  void shouldFailWhenNameIsBlank() throws Exception {
+    SaveUserDto dto = new SaveUserDto();
+    dto.setName(" ");
+    dto.setEmail("test@mail.com");
+    dto.setAddress("addr");
+
+    mockMvc.perform(post("/users/create")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(dto)))
+      .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void shouldFailWhenAddressIsBlank() throws Exception {
+    SaveUserDto dto = new SaveUserDto();
+    dto.setName("Test");
+    dto.setEmail("test@mail.com");
+    dto.setAddress("");
+
+    mockMvc.perform(post("/users/create")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(mapper.writeValueAsString(dto)))
+      .andExpect(status().isBadRequest());
+  }
+
 }
