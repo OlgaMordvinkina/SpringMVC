@@ -27,9 +27,7 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional
   public Order create(SaveOrderDto order) {
-    if (BigDecimal.ZERO.compareTo(order.getAmount()) <= 0) {
-      throw new IllegalArgumentException("Сумма заказа должна быть больше 0");
-    }
+    isValidAmount(order);
 
     User user = userService.getById(order.getUserId());
     Order newOrder = mapper.toEntity(order, user);
@@ -39,6 +37,8 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional
   public Order update(Long id, SaveOrderDto order) {
+    isValidAmount(order);
+
     Order existing = getById(id);
 
     mapper.toUpdateEntity(order, existing);
@@ -79,4 +79,10 @@ public class OrderServiceImpl implements OrderService {
     repository.deleteById(id);
   }
 
+
+  private void isValidAmount(SaveOrderDto order) {
+    if (BigDecimal.ZERO.compareTo(order.getAmount()) <= 0) {
+      throw new IllegalArgumentException("Сумма заказа должна быть больше 0");
+    }
+  }
 }
