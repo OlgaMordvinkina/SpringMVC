@@ -11,6 +11,7 @@ import ru.itk.mvc_service.json_view.repository.UserRepository;
 import ru.itk.mvc_service.json_view.service.UserService;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -43,8 +44,8 @@ public class UserServiceImpl implements UserService {
 
   @Transactional(readOnly = true)
   @Override
-  public boolean existsByEmail(String email) {
-    return repository.existsByEmail(email);
+  public Optional<User> findByEmail(String email) {
+    return repository.findByEmail(email);
   }
 
   @Transactional(readOnly = true)

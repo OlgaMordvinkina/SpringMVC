@@ -5,7 +5,12 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import ru.itk.mvc_service.json_view.annotation.UniqueEmail;
+import ru.itk.mvc_service.json_view.entity.User;
 import ru.itk.mvc_service.json_view.service.UserService;
+import ru.itk.mvc_service.json_view.utils.HttpRequestUtils;
+
+import java.util.Objects;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -16,9 +21,12 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 
   @Override
   public boolean isValid(String email, ConstraintValidatorContext context) {
-    if (userService.existsByEmail(email)) {
-      addMessage(String.format(USER_WITH_EMAIL_ALREADY_EXISTS_MESSAGE, email), context);
-      return false;
+    Optional<User> user = userService.findByEmail(email);
+    if (user.isPresent()) {
+      if (!Objects.equals(HttpRequestUtils.findIdFromRequest(), user.get().getId())) {
+        addMessage(String.format(USER_WITH_EMAIL_ALREADY_EXISTS_MESSAGE, email), context);
+        return false;
+      }
     }
     return true;
   }
