@@ -54,6 +54,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
+  @Transactional
   public List<Order> findAllOrByUserId(Long userId) {
     return Objects.isNull(userId)
       ? findAll()
