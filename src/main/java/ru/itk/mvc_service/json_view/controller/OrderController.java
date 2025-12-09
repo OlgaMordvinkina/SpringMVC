@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.itk.mvc_service.json_view.entity.Order;
 import ru.itk.mvc_service.json_view.mapper.OrderMapper;
 import ru.itk.mvc_service.json_view.model.OrderDto;
 import ru.itk.mvc_service.json_view.model.SaveOrderDto;
@@ -15,7 +14,6 @@ import ru.itk.mvc_service.json_view.model.Views;
 import ru.itk.mvc_service.json_view.service.OrderService;
 
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Validated
@@ -54,8 +52,7 @@ public class OrderController {
   @JsonView(Views.OrderSummary.class)
   public List<OrderDto> getAll(@RequestParam(required = false) Long userId) {
     log.debug("Request for GET all Orders started");
-    List<Order> orders = Objects.isNull(userId) ? service.findAll() : service.getAllByUserId(userId);
-    return orders.stream()
+    return service.findAllOrByUserId(userId).stream()
       .map(mapper::toDto)
       .toList();
   }

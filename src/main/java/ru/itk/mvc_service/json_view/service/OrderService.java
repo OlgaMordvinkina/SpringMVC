@@ -12,6 +12,8 @@ public interface OrderService {
 
   Order getById(Long id);
 
+  List<Order> findAllOrByUserId(Long userId);
+
   List<Order> getAllByUserId(Long id);
 
   List<Order> findAll();
