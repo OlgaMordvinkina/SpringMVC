@@ -12,7 +12,9 @@ import ru.itk.mvc_service.json_view.repository.OrderRepository;
 import ru.itk.mvc_service.json_view.service.OrderService;
 import ru.itk.mvc_service.json_view.service.UserService;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,8 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional
   public Order create(SaveOrderDto order) {
+    isValidAmount(order);
+
     User user = userService.getById(order.getUserId());
     Order newOrder = mapper.toEntity(order, user);
     return repository.save(newOrder);
@@ -33,6 +37,8 @@ public class OrderServiceImpl implements OrderService {
   @Override
   @Transactional
   public Order update(Long id, SaveOrderDto order) {
+    isValidAmount(order);
+
     Order existing = getById(id);
 
     mapper.toUpdateEntity(order, existing);
@@ -45,6 +51,14 @@ public class OrderServiceImpl implements OrderService {
   public Order getById(Long id) {
     return repository.findById(id)
       .orElseThrow(() -> new ResourceNotFoundException("Заказ", id));
+  }
+
+  @Override
+  @Transactional
+  public List<Order> findAllOrByUserId(Long userId) {
+    return Objects.isNull(userId)
+      ? findAll()
+      : getAllByUserId(userId);
   }
 
   @Override
@@ -65,4 +79,10 @@ public class OrderServiceImpl implements OrderService {
     repository.deleteById(id);
   }
 
+
+  private void isValidAmount(SaveOrderDto order) {
+    if (BigDecimal.ZERO.compareTo(order.getAmount()) <= 0) {
+      throw new IllegalArgumentException("Сумма заказа должна быть больше 0");
+    }
+  }
 }
